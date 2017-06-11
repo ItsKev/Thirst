@@ -3,6 +3,7 @@ package me.itskev.thirst.events;
 import me.itskev.thirst.Thirst;
 import me.itskev.thirst.manager.ThirstPlayer;
 import me.itskev.thirst.util.ReadConfig;
+import me.itskev.thirst.util.WriteConfig;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -19,29 +20,32 @@ import org.bukkit.potion.PotionType;
 public class PlayerEvent implements Listener {
 
     @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event){
-        Thirst.getInstance().getThirst().add(new ThirstPlayer(event.getPlayer(), 100));
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        if (event.getPlayer().hasPermission("thirst.lose")) {
+            Thirst.getInstance().getThirst().add(WriteConfig.getInstance().getAndRemovePlayerFromConfig(event.getPlayer()));
+        }
     }
 
     @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent event){
+    public void onPlayerQuit(PlayerQuitEvent event) {
         ThirstPlayer entry = null;
-        for(ThirstPlayer player : Thirst.getInstance().getThirst()){
-            if(player.getPlayer().equals(event.getPlayer())){
+        for (ThirstPlayer player : Thirst.getInstance().getThirst()) {
+            if (player.getPlayer().equals(event.getPlayer())) {
                 entry = player;
             }
         }
 
-        if(entry != null){
+        if (entry != null) {
+            WriteConfig.getInstance().addToPlayerToConfig(entry.getPlayer().getName(), entry.getThirst());
             Thirst.getInstance().getThirst().remove(entry);
         }
     }
 
     @EventHandler
-    public void onPotionConsume(PlayerItemConsumeEvent event){
-        if(event.getItem().getType().equals(Material.POTION)){
-            PotionType potionType = ((PotionMeta)event.getItem().getItemMeta()).getBasePotionData().getType();
-            if(potionType == PotionType.WATER) {
+    public void onPotionConsume(PlayerItemConsumeEvent event) {
+        if (event.getItem().getType().equals(Material.POTION)) {
+            PotionType potionType = ((PotionMeta) event.getItem().getItemMeta()).getBasePotionData().getType();
+            if (potionType == PotionType.WATER) {
                 for (ThirstPlayer entry : Thirst.getInstance().getThirst()) {
                     if (entry.getPlayer().equals(event.getPlayer())) {
                         int thirst = entry.getThirst() + ReadConfig.getInstance().getPercentageGainPerBottle();
@@ -57,7 +61,7 @@ public class PlayerEvent implements Listener {
     }
 
     @EventHandler
-    public void onPlayerRespawn(PlayerRespawnEvent event){
+    public void onPlayerRespawn(PlayerRespawnEvent event) {
         for (ThirstPlayer entry : Thirst.getInstance().getThirst()) {
             if (entry.getPlayer().equals(event.getPlayer())) {
                 entry.setThirst(100);

@@ -4,3 +4,7 @@ version: 1.0.0
 description: A small thirst plugin
 
 main: me.itskev.thirst.Thirst
+
+permissions:
+  thirst.lose:
+    description: If the permission is set, thirst is active

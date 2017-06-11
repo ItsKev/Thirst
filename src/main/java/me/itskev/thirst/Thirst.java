@@ -3,6 +3,7 @@ package me.itskev.thirst;
 import me.itskev.thirst.events.PlayerEvent;
 import me.itskev.thirst.manager.ThirstPlayer;
 import me.itskev.thirst.util.ReadConfig;
+import me.itskev.thirst.util.WriteConfig;
 import net.minecraft.server.v1_12_R1.IChatBaseComponent;
 import net.minecraft.server.v1_12_R1.PacketPlayOutTitle;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
@@ -31,7 +32,7 @@ public class Thirst extends JavaPlugin {
         instance = this;
         this.thirst = new ArrayList<>();
 
-        this.config();
+        WriteConfig.getInstance();
         ReadConfig.getInstance();
         this.registerEvents();
         this.startThirstSimulation();
@@ -39,16 +40,13 @@ public class Thirst extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        for(ThirstPlayer entry : this.thirst){
+            WriteConfig.getInstance().addToPlayerToConfig(entry.getPlayer().getName(), entry.getThirst());
+        }
     }
 
     public List<ThirstPlayer> getThirst(){
         return this.thirst;
-    }
-
-    private void config() {
-        this.getConfig().options().copyDefaults(true);
-        this.saveDefaultConfig();
-        this.saveConfig();
     }
 
     private void registerEvents() {
@@ -68,7 +66,7 @@ public class Thirst extends JavaPlugin {
                     } else {
                         player.setThirst(player.getThirst() - ReadConfig.getInstance().getPercentageRemovePerTick());
                     }
-                    IChatBaseComponent titleJSON = IChatBaseComponent.ChatSerializer.a("{\"text\":\"§4Thirst: " + player.getThirst() + "%\"}");
+                    IChatBaseComponent titleJSON = IChatBaseComponent.ChatSerializer.a("{\"text\":\"§bThirst: " + player.getThirst() + "%\"}");
                     PacketPlayOutTitle packet = new PacketPlayOutTitle(PacketPlayOutTitle.EnumTitleAction.ACTIONBAR, titleJSON);
                     ((CraftPlayer) player.getPlayer()).getHandle().playerConnection.sendPacket(packet);
                 }
