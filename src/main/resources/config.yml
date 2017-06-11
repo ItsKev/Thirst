@@ -1,0 +1,6 @@
+# Thirst plugin by ItsKev
+
+# in seconds
+TimeBetweenTicks: 1
+PercentageRemovePerTick: 5
+PercentageGainPerBottle: 50

@@ -1,0 +1,6 @@
+name: Thirst
+author: IstKev
+version: 1.0.0
+description: A small thirst plugin
+
+main: me.itskev.thirst.Thirst
